@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>FazzDeveloper</title>
+ <link rel="icon" href="https://img1.pixhost.to/images/5604/596378879_fazzdevofficial.jpg" type="image/png">
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; min-height: 100vh; background: linear-gradient(135deg, #002A74, #3E51AC); background-image: url(https://img1.pixhost.to/images/5604/596378879_fazzdevofficial.jpg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #eee;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1rem 0 2rem;
+  }
+  h1 {
+    margin: 0 0 1rem; font-weight: 900; font-size: 2rem; text-align: center; text-shadow: 1px 1px 8px #000a;
+  }
+  main {
+    background: rgba(255,255,255,0.1); border-radius: 20px; max-width: 350px; width: 90vw;
+    padding: 1.5rem 1.8rem 2rem; box-shadow: 0 10px 35px rgba(0,0,0,0.35);
+    display: flex; flex-direction: column; align-items: center; min-height: 400px;
+  }
+  #uploadLabel {
+    background: #7b61ff; padding: 1.1rem 1rem; border-radius: 18px; cursor: pointer;
+    font-weight: 700; font-size: 1.1rem; width: 100%; text-align: center; letter-spacing: 1.3px;
+    box-shadow: 0 6px 18px rgba(123,97,255,0.8); user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #uploadLabel:hover, #uploadLabel:focus {
+    background: #946dff;
+  }
+  #imageInput {
+    display: none;
+  }
+  #previewContainer img {
+    max-width: 100%; max-height: 250px; margin-top: 18px; border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(123,97,255,0.6); user-select: none;
+  }
+  #shortLinkContainer {
+    margin-top: 1.2rem; background: rgba(255,255,255,0.15); border-radius: 16px;
+    padding: 0.85rem 1rem; font-weight: 700; font-size: 0.9rem; color: #dcd9ff;
+    user-select: all; word-break: break-all;
+    box-shadow: inset 1px 1px 7px rgba(255,255,255,0.3);
+  }
+  #copyBtn {
+    margin-top: 14px; background: #9479ff; border: none; border-radius: 22px;
+    color: white; padding: 0.7rem 1.4rem; font-weight: 800; font-size: 1.05rem;
+    cursor: pointer; box-shadow: 0 5px 16px rgba(148,121,255,0.8); user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #copyBtn:hover, #copyBtn:focus {
+    background: #b89fff;
+  }
+  #removeBtn {
+    margin-top: 12px; background: #ff5f5f; border: none; border-radius: 22px;
+    color: white; padding: 0.65rem 1.2rem; font-weight: 800; font-size: 1rem;
+    cursor: pointer; box-shadow: 0 5px 14px rgba(255,95,95,0.85);
+    user-select: none; transition: background-color 0.3s ease;
+  }
+  #removeBtn:hover, #removeBtn:focus {
+    background: #ff4343;
+  }
+  #msgBox {
+    margin-top: 1rem; font-size: 0.88rem; color: #f8d7da; user-select: none;
+    min-height: 1.4rem; text-align: center;
+  }
+  #imageViewer {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh; background: #140a48;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 1rem 1rem 2rem; box-sizing: border-box; user-select: none;
+    z-index: 9999;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  #imageViewer.show {
+    visibility: visible;
+    opacity: 1;
+  }
+  #viewedImage {
+    max-width: 95vw; max-height: 75vh; border-radius: 18px;
+    box-shadow: 0 14px 40px rgba(152,85,255,0.85);
+  }
+  #backBtn {
+    margin-top: 18px; background: #9479ff; border: none; border-radius: 24px;
+    color: white; padding: 0.85rem 2rem; font-weight: 900; font-size: 1.25rem;
+    cursor: pointer; box-shadow: 0 7px 22px rgba(148,121,255,0.9);
+    user-select: none; transition: background-color 0.3s ease;
+  }
+  #backBtn:hover, #backBtn:focus {
+    background: #b89fff;
+  }
+  .footer {
+    margin-top: auto; font-size: 0.85rem; color: #dcd9ffcc;
+    text-align: center; user-select: none;
+  }
+  @media (max-width: 360px) {
+    main {
+      width: 95vw; min-height: 400px;
+    }
+  }
+</style>
+<script>
+  // Hide index.html from URL if present (removes index.html in URL for user-friendliness)
+  if(window.location.pathname.endsWith('/index.html')){
+    const newURL = window.location.origin + window.location.pathname.replace(/index\.html$/, '');
+    window.history.replaceState({}, '', newURL + window.location.search + window.location.hash);
+  }
+</script>
+</head>
+<body>
+
+<h1>Image Upoader</h1>
+
+<main id="appMain" aria-live="polite">
+  <label id="uploadLabel" for="imageInput" tabindex="0">
+    Klik Untuk Memasukan Gambar Yang Ingin Di Upload
+  </label>
+  <input id="imageInput" type="file" accept="image/*" />
+  <div id="previewContainer" aria-label="Image preview"></div>
+  <div id="shortLinkContainer" tabindex="0" aria-live="polite" aria-atomic="true" title="Click to select and copy the link" style="display:none;"></div>
+  <button id="copyBtn" style="display:none;" aria-label="Copy short link to clipboard">Copy Link</button>
+  <button id="removeBtn" style="display:none;" aria-label="Remove uploaded image and clear link">Remove Image</button>
+  <div id="msgBox" role="alert" aria-live="assertive"></div>
+</main>
+
+<div id="imageViewer" style="display:none;">
+  <img id="viewedImage" alt="Uploaded image" />
+  <button id="backBtn" aria-label="Back to uploader">← Back</button>
+</div>
+
+<div class="footer">© Copyright FazzDeveloper.</div>
+
+<script>
+  // Utils
+  const appMain = document.getElementById('appMain');
+  const imageInput = document.getElementById('imageInput');
+  const previewContainer = document.getElementById('previewContainer');
+  const shortLinkContainer = document.getElementById('shortLinkContainer');
+  const copyBtn = document.getElementById('copyBtn');
+  const removeBtn = document.getElementById('removeBtn');
+  const msgBox = document.getElementById('msgBox');
+
+  const imageViewer = document.getElementById('imageViewer');
+  const viewedImage = document.getElementById('viewedImage');
+  const backBtn = document.getElementById('backBtn');
+
+  // Storage key prefix
+  const STORAGE_PREFIX = 'shortlinkimg-';
+
+  function escapeHtml(text){
+    if(!text) return '';
+    return text.replace(/[&<>"']/g, m => {
+      switch(m){
+        case '&': return '&amp;';
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '"': return '&quot;';
+        case "'": return '&#39;';
+        default: return m;
+      }
+    });
+  }
+
+  function generateShortId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for(let i=0; i<6; i++) {
+      result += chars.charAt(Math.floor(Math.random()*chars.length));
+    }
+    return result;
+  }
+
+  function getStoredImage(shortId) {
+    try {
+      return localStorage.getItem(STORAGE_PREFIX + shortId);
+    } catch(e) {
+      console.error('Error reading localStorage', e);
+      return null;
+    }
+  }
+
+  function storeImage(shortId, dataURL) {
+    try {
+      localStorage.setItem(STORAGE_PREFIX + shortId, dataURL);
+      return true;
+    } catch(e) {
+      console.error('Error writing localStorage', e);
+      return false;
+    }
+  }
+
+  function removeStoredImage(shortId) {
+    try {
+      localStorage.removeItem(STORAGE_PREFIX + shortId);
+    } catch(e) {
+      console.error('Error removing localStorage', e);
+    }
+  }
+
+  function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+  }
+
+  let msgTimeout = null;
+  function showMessage(msg, time=3000, isError=false){
+    msgBox.textContent = msg;
+    msgBox.style.color = isError ? '#ff8080' : '#ccffcc';
+    if(msgTimeout) clearTimeout(msgTimeout);
+    msgTimeout = setTimeout(() => {
+      msgBox.textContent = '';
+    }, time);
+  }
+
+  function renderPreview(dataURL, shortId) {
+    previewContainer.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = dataURL;
+    img.alt = 'Uploaded preview';
+    previewContainer.appendChild(img);
+
+    const baseURL = window.location.origin + window.location.pathname.replace(/\/index\.html$/, '/');
+    const shortLink = baseURL + '?fazzdeveloper=' + encodeURIComponent(shortId);
+    shortLinkContainer.textContent = shortLink;
+    shortLinkContainer.style.display = 'block';
+    copyBtn.style.display = 'inline-block';
+    removeBtn.style.display = 'inline-block';
+    shortLinkContainer.setAttribute('tabindex', '0');
+  }
+  function clearPreview() {
+    previewContainer.innerHTML = '';
+    shortLinkContainer.textContent = '';
+    shortLinkContainer.style.display = 'none';
+    copyBtn.style.display = 'none';
+    removeBtn.style.display = 'none';
+  }
+
+  imageInput.addEventListener('change', e => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (!file.type.startsWith('image/')) {
+      showMessage('Selected file is not an image.', 3000, true);
+      return;
+    }
+    if(file.size > 3 * 1024 * 1024) {
+      showMessage('Please select an image less than 3MB.', 4000, true);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const dataURL = event.target.result;
+      let shortId;
+      do {
+        shortId = generateShortId();
+      } while(getStoredImage(shortId) !== null);
+
+      const stored = storeImage(shortId, dataURL);
+      if(!stored) {
+        showMessage('Failed to store image locally.', 4000, true);
+        return;
+      }
+      renderPreview(dataURL, shortId);
+      showMessage('Image uploaded successfully! Copy or share the link.', 3500, false);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  copyBtn.addEventListener('click', () => {
+    if(shortLinkContainer.textContent.length === 0) return;
+    navigator.clipboard.writeText(shortLinkContainer.textContent).then(() => {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy Link';
+      }, 2500);
+    }).catch(() => {
+      alert('Clipboard copy failed. Please copy manually.');
+    });
+  });
+
+  removeBtn.addEventListener('click', () => {
+    try {
+      const url = new URL(shortLinkContainer.textContent);
+      const id = url.searchParams.get('img');
+      if(id) {
+        removeStoredImage(id);
+      }
+    } catch {}
+    clearPreview();
+    imageInput.value = '';
+    showMessage('Image removed from local storage.');
+  });
+
+  function renderImageView(shortId) {
+    const dataURL = getStoredImage(shortId);
+    if(!dataURL) {
+      appMain.style.display = 'flex';
+      showMessage('Image not found or expired link.', 5000, true);
+      return;
+    }
+    appMain.style.display = 'none';
+    document.getElementById('imageViewer').style.display = 'flex';
+    document.getElementById('imageViewer').classList.add('show');
+    viewedImage.src = dataURL;
+  }
+
+  backBtn.addEventListener('click', () => {
+    document.getElementById('imageViewer').classList.remove('show');
+    document.getElementById('imageViewer').style.display = 'none';
+    appMain.style.display = 'flex';
+    const url = new URL(window.location.href);
+    url.searchParams.delete('img');
+    window.history.replaceState({}, document.title, url.toString());
+  });
+
+  document.getElementById('uploadLabel').addEventListener('keypress', e => {
+    if(e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      imageInput.click();
+    }
+  });
+
+  document.getElementById('uploadLabel').addEventListener('click', () => {
+    imageInput.click();
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const shortId = getQueryParam('img');
+    if(shortId) {
+      renderImageView(shortId);
+    }
+  });
+</script>
+</body>
+</html>
+
+  
